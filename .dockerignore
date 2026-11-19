@@ -1,0 +1,19 @@
+# Deps & build output (di-rebuild di dalam image)
+node_modules
+dist
+build
+
+# Version control & sampah lokal
+.git
+.gitignore
+.trash
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE / tooling
+.vscode
+.idea
+
+# Catatan: folder .figma TIDAK di-ignore karena vite.config.ts
+# meng-import './.figma/make/site.json' saat build.

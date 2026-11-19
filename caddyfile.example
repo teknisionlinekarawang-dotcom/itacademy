@@ -1,0 +1,12 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Caddy reverse-proxy configuration for DEVAcademy V.1.b
+#
+# Caddy automatically manages SSL (Let's Encrypt) and serves HTTPS by default.
+# Place this as your Caddyfile (e.g. /etc/caddy/Caddyfile)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# your-domain.com {
+#     reverse_proxy /backend-api/* 103.172.20.26:8081
+#     root * /var/www/devacademy/dist
+#     try_files /index.html 200
+# }

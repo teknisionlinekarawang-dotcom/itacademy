@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Nginx reverse-proxy configuration for DEVAcademy V.1.b
+#
+# Place this in your nginx site config (e.g. /etc/nginx/sites-available/devacademy)
+# or inside the `server { ... }` block that serves your HTTPS site.
+#
+# This proxy forwards all requests to /backend-api/ to the HTTP backend
+# at 103.172.20.26:8081, adding the required X-Auth-Token header.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Example full server block:
+#
+# server {
+#     listen 443 ssl;
+#     server_name your-domain.com;
+#
+#     ssl_certificate     /path/to/fullchain.pem;
+#     ssl_certificate_key /path/to/privkey.pem;
+#
+#     # ... SSL config ...
+#
+#     root /var/www/devacademy/dist;          # Vite build output
+#     index index.html;
+#
+#     # ── Reverse proxy: forward /backend-api → HTTP backend ──────────────
+#     location /backend-api/ {
+#         proxy_pass http://103.172.20.26:8081/;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#
+#         # Backend auth token (forwarded to the custom backend)
+#         proxy_set_header X-Auth-Token "596554ce-8003-4693-b4f8-b66b9cab7d28";
+#     }
+#
+#     # ── SPA fallback: serve index.html for all other routes ─────────────
+#     location / {
+#         try_files $uri $uri/ /index.html;
+#     }
+# }

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>IoT Lab - Simulator Arduino &amp; ESP32</title>
+<meta name="description" content="Belajar Arduino dan ESP32 dengan editor kode yang langsung menjalankan program di papan virtual." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230f172a'/><circle cx='16' cy='16' r='6' fill='%2322d3ee'/></svg>" />
+<link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-dot" aria-hidden="true"></span>
+    <div>
+      <h1>IoT Lab</h1>
+      <p>Simulator Arduino &amp; ESP32 - ubah kode, hasil langsung terlihat</p>
+    </div>
+  </div>
+
+  <div class="topbar-tools">
+    <label class="field">
+      <span>Papan</span>
+      <select id="boardSelect" aria-label="Pilih papan"></select>
+    </label>
+    <label class="field">
+      <span>Kecepatan</span>
+      <select id="speedSelect" aria-label="Kecepatan simulasi">
+        <option value="0.25">0,25x</option>
+        <option value="0.5">0,5x</option>
+        <option value="1" selected>1x</option>
+        <option value="2">2x</option>
+        <option value="4">4x</option>
+      </select>
+    </label>
+
+    <div class="btn-group" role="group" aria-label="Kontrol simulasi">
+      <button type="button" id="btnPlay" class="btn primary" aria-pressed="true">Jeda</button>
+      <button type="button" id="btnStep" class="btn">1 iterasi</button>
+      <button type="button" id="btnRestart" class="btn">Ulang</button>
+    </div>
+
+    <div class="btn-group" role="group" aria-label="Ekspor kode">
+      <button type="button" id="btnIno" class="btn">Unduh .ino</button>
+      <button type="button" id="btnReadme" class="btn">Unduh README</button>
+      <button type="button" id="btnCopy" class="btn">Salin kode</button>
+    </div>
+
+    <div class="btn-group" role="group" aria-label="Tata letak jendela">
+      <button type="button" id="btnResetLayout" class="btn" title="Kembalikan ukuran, posisi, dan jendela yang diperkecil/diperbesar ke bawaan">Reset tata letak</button>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- Kolom 1: daftar modul -->
+  <section class="col col-left" data-col="left" aria-label="Daftar modul pembelajaran">
+    <div class="win" data-win="kurikulum">
+      <div class="win-bar">
+        <span class="win-title">Kurikulum</span>
+        <span class="win-hint muted small">14 modul</span>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body">
+        <p class="muted small win-lead">Klik sebuah modul untuk memuat sketch-nya ke editor.</p>
+        <ol id="moduleList" class="module-list"></ol>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <div class="vsplit" data-split="left" title="Seret untuk mengubah lebar kolom" role="separator" aria-orientation="vertical" tabindex="0"></div>
+
+  <!-- Kolom 2: materi + editor + serial -->
+  <section class="col col-center" data-col="center">
+    <div class="win" data-win="materi">
+      <div class="win-bar">
+        <span class="win-title" id="lessonTitle">Materi</span>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body">
+        <div id="lessonBody" class="lesson-body"></div>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+
+    <div class="win" data-win="editor">
+      <div class="win-bar">
+        <span class="win-title">Editor</span>
+        <div class="win-extra chips">
+          <span class="chip" id="chipCompile">menyiapkan&#8230;</span>
+          <span class="chip" id="chipCursor">baris 1</span>
+        </div>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body win-body-fill">
+        <div id="editorHost" class="editor-host"></div>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+
+    <div class="win" data-win="serial">
+      <div class="win-bar">
+        <span class="win-title">Serial Monitor</span>
+        <span class="win-extra muted small">9600 baud (virtual)</span>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body win-body-fill">
+        <div id="serialHost" class="serial-host"></div>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <div class="vsplit" data-split="right" title="Seret untuk mengubah lebar kolom" role="separator" aria-orientation="vertical" tabindex="0"></div>
+
+  <!-- Kolom 3: papan + keluaran + input + status -->
+  <section class="col col-right" data-col="right" aria-label="Papan virtual dan kontrol">
+    <div class="win" data-win="papan">
+      <div class="win-bar">
+        <span class="win-title">Papan virtual</span>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body">
+        <svg id="boardSvg" class="board-svg" role="img" aria-label="Ilustrasi papan dengan pin yang aktif"></svg>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+
+    <div class="win" data-win="keluaran">
+      <div class="win-bar">
+        <span class="win-title">Keluaran</span>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body">
+        <div id="outputHost" class="output-host"></div>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+
+    <div class="win" data-win="input">
+      <div class="win-bar">
+        <span class="win-title">Input</span>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body">
+        <div id="inputHost" class="input-host"></div>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+
+    <div class="win" data-win="status">
+      <div class="win-bar">
+        <span class="win-title">Status</span>
+        <div class="win-actions">
+          <button type="button" class="win-btn win-max" title="Perbesar / pulihkan" aria-label="Perbesar jendela" aria-pressed="false">&#9634;</button>
+          <button type="button" class="win-btn win-min" title="Perkecil" aria-label="Perkecil jendela" aria-expanded="true">&#9662;</button>
+        </div>
+      </div>
+      <div class="win-body">
+        <dl id="statusHost" class="status-list"></dl>
+        <ul id="warningHost" class="warning-list"></ul>
+      </div>
+      <div class="win-grip" title="Seret ke atas / bawah untuk mengubah tinggi" aria-hidden="true"></div>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

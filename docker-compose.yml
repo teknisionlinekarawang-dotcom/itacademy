@@ -1,0 +1,11 @@
+services:
+  itacademy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: teknisionline/itacademy:latest
+    container_name: itacademy
+    ports:
+      # host:container — ubah PORT bila port 8090 sibuk, mis. PORT=9000 docker compose up
+      - "${PORT:-8090}:80"
+    restart: unless-stopped

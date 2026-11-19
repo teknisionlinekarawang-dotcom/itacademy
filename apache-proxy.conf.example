@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Apache reverse-proxy configuration for DEVAcademy V.1.b
+#
+# Place this in your Apache virtual host config or .htaccess file.
+# Requires mod_proxy, mod_proxy_http, and mod_rewrite to be enabled.
+#
+#   a2enmod proxy proxy_http rewrite
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Example VirtualHost:
+#
+# <VirtualHost *:443>
+#     ServerName your-domain.com
+#
+#     SSLEngine on
+#     SSLCertificateFile     /path/to/certificate.crt
+#     SSLCertificateKeyFile  /path/to/private.key
+#
+#     DocumentRoot /var/www/devacademy/dist
+#
+#     # ── Reverse proxy: forward /backend-api → HTTP backend ───────────────
+#     # Strip /backend-api prefix and forward to the HTTP backend
+#     ProxyPass "/backend-api/" "http://103.172.20.26:8081/"
+#     ProxyPassReverse "/backend-api/" "http://103.172.20.26:8081/"
+#
+#     # The backend uses X-Auth-Token header for authentication.
+#     # Since we can't set custom headers per-request with ProxyPass alone,
+#     # the frontend already sends this header in fetch() calls.
+#     # If the backend rejects due to missing auth, add:
+#     #   Header add X-Auth-Token "596554ce-8003-4693-b4f8-b66b9cab7d28" \
+#     #     expr=reqenv('REQUEST_URI')=~m#^/backend-api#
+#
+#     # ── SPA fallback ────────────────────────────────────────────────────
+#     <IfModule mod_rewrite.c>
+#         RewriteEngine On
+#         RewriteBase /
+#         RewriteRule ^index\.html$ - [L]
+#         RewriteCond %{REQUEST_FILENAME} !-f
+#         RewriteCond %{REQUEST_FILENAME} !-d
+#         RewriteRule . /index.html [L]
+#     </IfModule>
+# </VirtualHost>
